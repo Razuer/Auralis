@@ -1,0 +1,4 @@
+# Primary theme palette managed by scripts/update_accent.py
+[accent]
+primary = "#7dd6f6"
+primary_bright = "#b3ecff"
