@@ -9,11 +9,12 @@
 @define-color accent_blue     #7aa2f7;
 @define-color accent_critical #e65c5c;
 
-#waybar {
+window#waybar > box {
     background-color: @waybarBg;
-    margin: 8px 12px 0px 12px; /* config:waybar_floating:margin */
-    border-radius: 10px; /* config:waybar_floating:border-radius */
-    padding: 0px 8px; /* config:waybar_floating:padding */
+    border-radius: 12px; /* config:waybar_floating:border-radius */
+    padding: 3px 4px; /* config:waybar_floating:padding */
+    margin: 4px 6px; /* config:waybar_floating:margin */
+    min-height: 20px; /* 54 + vertical padding (8) = 62 total height per logs */
 }
 
 #battery.charging,

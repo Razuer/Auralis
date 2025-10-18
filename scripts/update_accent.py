@@ -179,7 +179,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-palette",
         action="store_true",
-    help="Do not rewrite theme.toml (useful for dry runs)",
+        help="Do not rewrite theme.toml (useful for dry runs)",
     )
     return parser.parse_args()
 

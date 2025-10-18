@@ -63,23 +63,22 @@ def update_waybar_floating(config: Dict[str, Any]) -> list[Path]:
 
     if floating:
         # Apply floating style (with markers)
-        margin_pattern = re.compile(
-            r"(#waybar\s*\{[^}]*?)(margin:\s*[^;]*;\s*/\*\s*config:waybar_floating:margin\s*\*/)",
-            re.DOTALL,
-        )
-        border_pattern = re.compile(
-            r"(border-radius:\s*[^;]*;\s*/\*\s*config:waybar_floating:border-radius\s*\*/)"
-        )
-        padding_pattern = re.compile(
-            r"(padding:\s*[^;]*;\s*/\*\s*config:waybar_floating:padding\s*\*/)"
-        )
-
-        # Check if markers exist but are commented out
         if "/* config:waybar_floating:margin */" not in text:
-            # Add floating styles
             text = re.sub(
-                r"(#waybar\s*\{\s*\n\s*background-color:\s*@waybarBg;)",
-                r"\1\n    margin: 8px 12px 0px 12px;  /* config:waybar_floating:margin */\n    border-radius: 10px;  /* config:waybar_floating:border-radius */\n    padding: 0px 8px;  /* config:waybar_floating:padding */",
+                r"(window#waybar\s*\{\s*\n\s*background-color:\s*@background;)",
+                r"\1\n    margin: 8px 12px -8px 12px;  /* config:waybar_floating:margin */",
+                text,
+            )
+        if "/* config:waybar_floating:border-radius */" not in text:
+            text = re.sub(
+                r"(window#waybar\s*>\s*box\s*\{\s*\n\s*background-color:\s*@waybarBg;)",
+                r"\1\n    border-radius: 10px;  /* config:waybar_floating:border-radius */",
+                text,
+            )
+        if "/* config:waybar_floating:padding */" not in text:
+            text = re.sub(
+                r"(window#waybar\s*>\s*box\s*\{[^}]*\n)(\s*border-radius:[^\n]*config:waybar_floating:border-radius[^\n]*\n)",
+                r"\1\2    padding: 0px 12px;  /* config:waybar_floating:padding */\n",
                 text,
             )
     else:

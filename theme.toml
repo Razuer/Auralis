@@ -7,7 +7,7 @@ primary_bright = "#b3ecff"
 
 [ui]
 # Window rounded corners (0 = square, 10 = rounded)
-rounding = 8  # config:rounding
+rounding = 10  # config:rounding
 
 # Waybar style
 waybar_floating = true  # config:waybar_floating
