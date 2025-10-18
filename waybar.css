@@ -14,7 +14,7 @@ window#waybar > box {
     border-radius: 12px; /* config:waybar_floating:border-radius */
     padding: 3px 4px; /* config:waybar_floating:padding */
     margin: 4px 6px; /* config:waybar_floating:margin */
-    min-height: 20px; /* 54 + vertical padding (8) = 62 total height per logs */
+    min-height: 22px;
 }
 
 #battery.charging,

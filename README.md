@@ -2,12 +2,12 @@
 
 A personalized variant of the [Ayaka Theme](https://github.com/abhijeet-swami/omarchy-ayaka-theme) for Omarchy Linux, designed for easy customization and accent color personalization.
 
-This theme builds upon the original Ayaka's elegant dark foundation while introducing an automated accent system that makes it effortless to personalize your desktop's primary color scheme to match your preferences. Change the entire theme's accent with a single command.
+This theme builds upon the original Ayaka's elegant dark foundation while introducing an automated accent system that makes it effortless to personalize your desktop's color scheme. Change the entire theme's accents and UI with a single command.
 
 ## Features
 
--   **Customizable Accent Colors** - Easily change the primary accent color using an automated script
--   **Easy UI Configuration** - Toggle rounded corners and Waybar floating style with simple commands
+-   **Customizable Accent Colors** - Change primary, bright, and secondary accents using a single script
+-   **Easy UI Configuration** - Toggle rounded corners and Waybar floating style with simple flags
 -   **Comprehensive Coverage** - Supports Hyprland, Waybar, Mako, SwayOSD, Walker, Neovim, and popular terminals (Alacritty, Ghostty, Kitty)
 -   **Consistent Design Language** - Unified color scheme across all applications
 -   **Modern Aesthetics** - Light cyan accent (#7dd6f6) with smooth animations and polished UI elements
@@ -19,47 +19,37 @@ This theme builds upon the original Ayaka's elegant dark foundation while introd
 omarchy-theme-install https://github.com/abhijeet-swami/omarchy-ayaka-theme
 ```
 
-## Changing the Accent Color
+## Apply and customize the theme
 
-## Customizing UI Settings
-
-### Toggle Rounded Corners
-
-Switch between rounded and square window corners:
+One entry point script powers all changes: accents and UI.
 
 ```bash
-# Enable rounded corners (default: 10)
-python3 scripts/update_config.py --rounding 10
+# Read values from theme.toml and apply everywhere
+python3 scripts/apply_theme.py
 
-# Disable rounded corners (square windows)
-python3 scripts/update_config.py --rounding 0
+# Override accents on the fly (hex #RRGGBB)
+python3 scripts/apply_theme.py --accent "#70c7f0" \
+							   --accent-bright "#b3ecff" \
+							   --accent-secondary "#88cc88"
+
+# UI tweaks
+python3 scripts/apply_theme.py --rounding 10            # rounded corners
+python3 scripts/apply_theme.py --rounding 0             # square corners
+python3 scripts/apply_theme.py --waybar-floating true   # floating Waybar
+python3 scripts/apply_theme.py --waybar-floating false  # full-width Waybar
 ```
 
-### Toggle Waybar Floating Style
+You can also edit `theme.toml` directly under `[accent]` and `[ui]` and run the script without arguments.
 
-Switch between floating and full-width Waybar:
+### Accent markers supported
 
-```bash
-# Enable floating Waybar (default)
-python3 scripts/update_config.py --waybar-floating true
+The script scans files and replaces colors on lines containing the following markers:
 
-# Disable floating Waybar (full-width)
-python3 scripts/update_config.py --waybar-floating false
-```
-
-You can also edit `theme.toml` directly and change the values in the `[ui]` section, then run the script without arguments to apply changes.
-
-This theme includes a Python script that automatically updates the accent color across all configuration files:
-
-```bash
-# Change the primary accent color
-python3 scripts/update_accent.py --accent "#your-color"
-
-# Change both primary and bright accent colors
-python3 scripts/update_accent.py --accent "#primary-color" --accent-bright "#bright-variant"
-```
-
-The script reads from `theme.toml` and updates all files with special markers (`# accent:primary`, `# accent:primary-rgba`, etc.) to ensure consistent theming.
+-   `accent:primary` → `#RRGGBB`
+-   `accent:primary-bright` → `#RRGGBB`
+-   `accent:primary-rgba` → `rgba(RRGGBBAA)` (auto-appends ff if not provided)
+-   `accent:secondary` → `#RRGGBB`
+-   `accent:secondary-rgba` → `rgba(RRGGBBAA)`
 
 ### Requirements
 
@@ -71,7 +61,7 @@ pip install -r scripts/requirements.txt
 
 ### Applying Changes
 
-After updating colors, reload the affected applications:
+After applying the theme or updating colors, reload the affected applications:
 
 -   **Hyprland**: `hyprctl reload` or restart Hyprland
 -   **Waybar/Mako/Walker**: Restart the respective services
