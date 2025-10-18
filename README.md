@@ -20,6 +20,7 @@ omarchy-theme-install https://github.com/abhijeet-swami/omarchy-ayaka-theme
 ```
 
 ## Changing the Accent Color
+
 ## Customizing UI Settings
 
 ### Toggle Rounded Corners
@@ -46,8 +47,7 @@ python3 scripts/update_config.py --waybar-floating true
 python3 scripts/update_config.py --waybar-floating false
 ```
 
-You can also edit `palette.toml` directly and change the values in the `[ui]` section, then run the script without arguments to apply changes.
-
+You can also edit `theme.toml` directly and change the values in the `[ui]` section, then run the script without arguments to apply changes.
 
 This theme includes a Python script that automatically updates the accent color across all configuration files:
 
@@ -59,7 +59,7 @@ python3 scripts/update_accent.py --accent "#your-color"
 python3 scripts/update_accent.py --accent "#primary-color" --accent-bright "#bright-variant"
 ```
 
-The script reads from `palette.toml` and updates all files with special markers (`# accent:primary`, `# accent:primary-rgba`, etc.) to ensure consistent theming.
+The script reads from `theme.toml` and updates all files with special markers (`# accent:primary`, `# accent:primary-rgba`, etc.) to ensure consistent theming.
 
 ### Requirements
 

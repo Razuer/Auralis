@@ -11,9 +11,9 @@
 
 #waybar {
     background-color: @waybarBg;
-    margin: 8px 12px 0px 12px;  /* config:waybar_floating:margin */
-    border-radius: 10px;  /* config:waybar_floating:border-radius */
-    padding: 0px 8px;  /* config:waybar_floating:padding */
+    margin: 8px 12px 0px 12px; /* config:waybar_floating:margin */
+    border-radius: 10px; /* config:waybar_floating:border-radius */
+    padding: 0px 8px; /* config:waybar_floating:padding */
 }
 
 #battery.charging,

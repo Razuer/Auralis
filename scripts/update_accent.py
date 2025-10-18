@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update accent color values across theme files based on palette.toml."""
+"""Update accent color values across theme files based on theme.toml."""
 from __future__ import annotations
 
 import argparse
@@ -13,7 +13,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for Python <3.11
     import tomli as tomllib  # type: ignore
 
 ROOT = Path(__file__).resolve().parent.parent
-PALETTE_FILE = ROOT / "palette.toml"
+PALETTE_FILE = ROOT / "theme.toml"
 
 # Markers that we search for inside files. The first match in a line is replaced.
 ACCENT_MARKERS = (
@@ -53,7 +53,7 @@ def load_palette(
 ) -> Dict[str, str]:
     if not PALETTE_FILE.is_file():
         raise FileNotFoundError(
-            "palette.toml is missing; create it before running this script."
+            "theme.toml is missing; create it before running this script."
         )
 
     with PALETTE_FILE.open("rb") as fh:
@@ -62,7 +62,7 @@ def load_palette(
     accent = data.get("accent", {})
     primary = accent_override or accent.get("primary")
     if primary is None:
-        raise ValueError("accent.primary is not defined in palette.toml")
+        raise ValueError("accent.primary is not defined in theme.toml")
 
     bright = bright_override or accent.get("primary_bright")
     primary_hex = normalize_hex(primary)
@@ -131,13 +131,37 @@ def apply_updates(colours: Dict[str, str]) -> list[Path]:
 
 
 def update_palette_file(colours: Dict[str, str]) -> None:
-    lines = [
-        "# Primary theme palette managed by scripts/update_accent.py",
+    """Rewrite theme.toml [accent] while preserving other sections like [ui]."""
+    existing_ui = None
+    if PALETTE_FILE.exists():
+        try:
+            with PALETTE_FILE.open("rb") as fh:
+                data = tomllib.load(fh)
+                existing_ui = data.get("ui")
+        except Exception:
+            existing_ui = None
+
+    lines: list[str] = [
+        "# Theme configuration (colors + UI)",
+        "",
         "[accent]",
         f"primary = \"{colours['primary']}\"",
         f"primary_bright = \"{colours['primary_bright']}\"",
         "",
     ]
+    if isinstance(existing_ui, dict):
+        lines.append("[ui]")
+        # preserve known keys with inline markers if present
+        rounding = existing_ui.get("rounding")
+        if rounding is not None:
+            lines.append(f"rounding = {int(rounding)}  # config:rounding")
+        waybar_floating = existing_ui.get("waybar_floating")
+        if waybar_floating is not None:
+            val = str(bool(waybar_floating)).lower()
+            lines.append(f"\n# Waybar style")
+            lines.append(f"waybar_floating = {val}  # config:waybar_floating")
+        lines.append("")
+
     PALETTE_FILE.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -155,7 +179,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-palette",
         action="store_true",
-        help="Do not rewrite palette.toml (useful for dry runs)",
+    help="Do not rewrite theme.toml (useful for dry runs)",
     )
     return parser.parse_args()
 
