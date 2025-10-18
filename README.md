@@ -6,10 +6,12 @@ This theme builds upon the original Ayaka's elegant dark foundation while introd
 
 ## Features
 
-- **Customizable Accent Colors** - Easily change the primary accent color using an automated script
-- **Comprehensive Coverage** - Supports Hyprland, Waybar, Mako, SwayOSD, Walker, Neovim, and popular terminals (Alacritty, Ghostty, Kitty)
-- **Consistent Design Language** - Unified color scheme across all applications
-- **Modern Aesthetics** - Light cyan accent (#7dd6f6) with smooth animations and polished UI elements
+-   **Customizable Accent Colors** - Easily change the primary accent color using an automated script
+-   **Easy UI Configuration** - Toggle rounded corners and Waybar floating style with simple commands
+-   **Comprehensive Coverage** - Supports Hyprland, Waybar, Mako, SwayOSD, Walker, Neovim, and popular terminals (Alacritty, Ghostty, Kitty)
+-   **Consistent Design Language** - Unified color scheme across all applications
+-   **Modern Aesthetics** - Light cyan accent (#7dd6f6) with smooth animations and polished UI elements
+-   **Floating Waybar** - Modern floating status bar with rounded corners and spacing
 
 ## Quick Install
 
@@ -18,6 +20,34 @@ omarchy-theme-install https://github.com/abhijeet-swami/omarchy-ayaka-theme
 ```
 
 ## Changing the Accent Color
+## Customizing UI Settings
+
+### Toggle Rounded Corners
+
+Switch between rounded and square window corners:
+
+```bash
+# Enable rounded corners (default: 10)
+python3 scripts/update_config.py --rounding 10
+
+# Disable rounded corners (square windows)
+python3 scripts/update_config.py --rounding 0
+```
+
+### Toggle Waybar Floating Style
+
+Switch between floating and full-width Waybar:
+
+```bash
+# Enable floating Waybar (default)
+python3 scripts/update_config.py --waybar-floating true
+
+# Disable floating Waybar (full-width)
+python3 scripts/update_config.py --waybar-floating false
+```
+
+You can also edit `palette.toml` directly and change the values in the `[ui]` section, then run the script without arguments to apply changes.
+
 
 This theme includes a Python script that automatically updates the accent color across all configuration files:
 
@@ -34,6 +64,7 @@ The script reads from `palette.toml` and updates all files with special markers 
 ### Requirements
 
 For Python versions before 3.11:
+
 ```bash
 pip install -r scripts/requirements.txt
 ```
@@ -41,10 +72,11 @@ pip install -r scripts/requirements.txt
 ### Applying Changes
 
 After updating colors, reload the affected applications:
-- **Hyprland**: `hyprctl reload` or restart Hyprland
-- **Waybar/Mako/Walker**: Restart the respective services
-- **Terminals**: Open new instances or reload configs (if supported)
-- **Neovim**: Restart or `:source` your configuration
+
+-   **Hyprland**: `hyprctl reload` or restart Hyprland
+-   **Waybar/Mako/Walker**: Restart the respective services
+-   **Terminals**: Open new instances or reload configs (if supported)
+-   **Neovim**: Restart or `:source` your configuration
 
 ## Screenshots
 
@@ -53,21 +85,21 @@ After updating colors, reload the affected applications:
 
 ## Theme Components
 
-- **Hyprland** - Window manager configuration with cyan accent borders
-- **Hyprlock** - Lock screen styling
-- **Waybar** - Status bar theme
-- **Mako** - Notification daemon styling
-- **SwayOSD** - On-screen display theme
-- **Walker** - Application launcher theme
-- **Neovim** - Editor color scheme
-- **Terminals** - Alacritty, Ghostty, and Kitty configurations
-- **btop** - System monitor theme
+-   **Hyprland** - Window manager configuration with cyan accent borders
+-   **Hyprlock** - Lock screen styling
+-   **Waybar** - Status bar theme
+-   **Mako** - Notification daemon styling
+-   **SwayOSD** - On-screen display theme
+-   **Walker** - Application launcher theme
+-   **Neovim** - Editor color scheme
+-   **Terminals** - Alacritty, Ghostty, and Kitty configurations
+-   **btop** - System monitor theme
 
 ## Credits
 
-- Original theme inspired by [Ayaka Theme](https://github.com/abhijeet-swami/omarchy-ayaka-theme) by **abhijeet-swami**
-- Animation by **Raze**  
-- Cyan accent variant and automation script by **razuer**
+-   Original theme inspired by [Ayaka Theme](https://github.com/abhijeet-swami/omarchy-ayaka-theme) by **abhijeet-swami**
+-   Animation by **Raze**
+-   Cyan accent variant and automation script by **razuer**
 
 ## License
 

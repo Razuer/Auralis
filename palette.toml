@@ -1,4 +1,13 @@
-# Primary theme palette managed by scripts/update_accent.py
+# Primary theme palette and configuration
+# Managed by scripts/update_accent.py and scripts/update_config.py
+
 [accent]
 primary = "#7dd6f6"
 primary_bright = "#b3ecff"
+
+[ui]
+# Window rounded corners (0 = square, 10 = rounded)
+rounding = 8  # config:rounding
+
+# Waybar style
+waybar_floating = true  # config:waybar_floating
