@@ -2,7 +2,8 @@
 @define-color border-color     #7dd6f6; /* accent:primary */
 @define-color label            #e6e6e6;
 @define-color image            #e6e6e6;
-@define-color progress        #66cc66;
+@define-color progress         #957df6; /* accent:secondary */
+@define-color progress2        #c2b6fb; /* accent:secondary-bright */
 
 window {
     background-color: transparent;
@@ -50,7 +51,7 @@ progressbar > trough {
 }
 
 progressbar > trough > progress {
-    background: linear-gradient(90deg, @progress, #3d8b3d);
+    background: linear-gradient(90deg, @progress, @progress2);
     border-radius: 0;
     border: none;
     min-height: 16px;
@@ -64,7 +65,7 @@ progressbar trough {
 }
 
 progressbar progress {
-    background: linear-gradient(90deg, @progress, #3d8b3d);
+    background: linear-gradient(90deg, @progress, @progress2);
     border-radius: 0;
     border: none;
     min-height: 16px;

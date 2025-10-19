@@ -4,10 +4,10 @@
 [accent]
 primary = "#7dd6f6"
 primary_bright = "#b3ecff"
-secondary = "#7dd6f6"
+secondary = "#957df6"
+secondary_bright = "#c2b6fb"
 
 [ui]
-# Window rounded corners (0 = square, 10 = rounded)
 rounding = 10  # config:rounding
 
 # Waybar style

@@ -39,6 +39,8 @@ class Theme:
     primary_rgba: str  # rgba(RRGGBBAA)
     secondary: str  # #RRGGBB
     secondary_rgba: str  # rgba(RRGGBBAA)
+    secondary_bright: str  # #RRGGBB
+    secondary_bright_rgba: str  # rgba(RRGGBBAA)
     rounding: int
     waybar_floating: bool
 
@@ -67,6 +69,7 @@ def load_theme(
     accent_override: str | None = None,
     bright_override: str | None = None,
     secondary_override: str | None = None,
+    secondary_bright_override: str | None = None,
     rounding_override: int | None = None,
     waybar_floating_override: bool | None = None,
 ) -> Theme:
@@ -86,6 +89,9 @@ def load_theme(
         bright_override or acc.get("primary_bright") or lighten(primary)
     )
     secondary = normalize_hex(secondary_override or acc.get("secondary") or primary)
+    secondary_bright = normalize_hex(
+        secondary_bright_override or acc.get("secondary_bright") or lighten(secondary)
+    )
 
     rounding = int(
         rounding_override if rounding_override is not None else ui.get("rounding", 10)
@@ -102,6 +108,8 @@ def load_theme(
         primary_rgba=hex_to_rgba(primary),
         secondary=secondary,
         secondary_rgba=hex_to_rgba(secondary),
+        secondary_bright=secondary_bright,
+        secondary_bright_rgba=hex_to_rgba(secondary_bright),
         rounding=rounding,
         waybar_floating=waybar_floating,
     )
@@ -110,9 +118,13 @@ def load_theme(
 # ---------- Accent propagation ----------
 
 ACCENT_MARKERS: tuple[tuple[str, str], ...] = (
+    # Primary: check more specific markers before generic ones
     ("accent:primary-rgba", "primary_rgba"),
     ("accent:primary-bright", "primary_bright"),
     ("accent:primary", "primary"),
+    # Secondary: ensure '-bright' is matched before base to avoid substring collisions
+    ("accent:secondary-bright-rgba", "secondary_bright_rgba"),
+    ("accent:secondary-bright", "secondary_bright"),
     ("accent:secondary-rgba", "secondary_rgba"),
     ("accent:secondary", "secondary"),
 )
@@ -125,6 +137,9 @@ def replace_first(
     if not m:
         return line, False
     a, b = m.span()
+    # If the existing substring already equals the replacement, don't mark as changed
+    if line[a:b] == replacement:
+        return line, False
     return f"{line[:a]}{replacement}{line[b:]}", True
 
 
@@ -132,8 +147,10 @@ def update_line_with_accent(line: str, theme: Theme) -> tuple[str, bool]:
     for marker, key in ACCENT_MARKERS:
         if marker not in line:
             continue
-        if key == "primary_rgba":
-            return replace_first(RGBA_PATTERN, line, theme.primary_rgba)
+        # Use RGBA replacement for any key that specifies an RGBA value
+        if key.endswith("_rgba"):
+            return replace_first(RGBA_PATTERN, line, getattr(theme, key))
+        # Otherwise replace the first hex color occurrence
         return replace_first(HEX_PATTERN, line, getattr(theme, key))
     return line, False
 
@@ -222,6 +239,7 @@ def update_waybar_floating(enabled: bool) -> list[Path]:
     if not css.exists():
         return updated
     text = css.read_text(encoding="utf-8")
+    original_text = text
 
     def ensure_line(
         pattern: str, default_line: str, block_hint: str | None = None
@@ -268,8 +286,9 @@ def update_waybar_floating(enabled: bool) -> list[Path]:
             text,
         )
 
-    css.write_text(text, encoding="utf-8")
-    updated.append(css.relative_to(ROOT))
+    if text != original_text:
+        css.write_text(text, encoding="utf-8")
+        updated.append(css.relative_to(ROOT))
     return updated
 
 
@@ -292,6 +311,7 @@ def update_theme_file(theme: Theme) -> None:
         f'primary = "{theme.primary}"',
         f'primary_bright = "{theme.primary_bright}"',
         f'secondary = "{theme.secondary}"',
+        f'secondary_bright = "{theme.secondary_bright}"',
         "",
     ]
     if isinstance(existing_ui, dict):
@@ -313,6 +333,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--accent", help="Override accent.primary (#RRGGBB)")
     p.add_argument("--accent-bright", help="Override accent.primary_bright (#RRGGBB)")
     p.add_argument("--accent-secondary", help="Override accent.secondary (#RRGGBB)")
+    p.add_argument(
+        "--accent-secondary-bright", help="Override accent.secondary_bright (#RRGGBB)"
+    )
     p.add_argument("--rounding", type=int, help="Set window rounding (0..30)")
     p.add_argument(
         "--waybar-floating",
@@ -333,6 +356,7 @@ def main() -> None:
         args.accent,
         args.accent_bright,
         args.accent_secondary,
+        args.accent_secondary_bright,
         args.rounding,
         args.waybar_floating,
     )
