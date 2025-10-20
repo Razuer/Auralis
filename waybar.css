@@ -11,8 +11,8 @@
 
 window#waybar > box {
     background-color: @waybarBg;
-    border-radius: 12px; /* config:waybar_floating:border-radius */
     padding: 3px 4px; /* config:waybar_floating:padding */
+    border-radius: 12px; /* config:waybar_floating:border-radius */
     margin: 4px 6px; /* config:waybar_floating:margin */
     min-height: 22px;
 }

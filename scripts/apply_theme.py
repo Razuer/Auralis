@@ -153,6 +153,13 @@ ACCENT_MARKERS: tuple[tuple[str, str], ...] = (
     ("accent:secondary", "secondary"),
 )
 
+# Mapping for quick marker/token -> Theme attribute lookup
+ACCENT_MAP: dict[str, str] = {}
+for _marker, _key in ACCENT_MARKERS:
+    ACCENT_MAP[_marker] = _key
+    _token = _marker.split(":", 1)[1]
+    ACCENT_MAP[_token] = _key
+
 
 def replace_first(
     pattern: re.Pattern[str], line: str, replacement: str
@@ -197,11 +204,45 @@ def apply_accent(theme: Theme) -> list[Path]:
             continue
         lines = text.splitlines()
         changed = False
+        pending_marker: str | None = None
         for i, line in enumerate(lines):
+            # 1) Inline marker on the same line
             new_line, altered = update_line_with_accent(line, theme)
             if altered:
                 lines[i] = new_line
                 changed = True
+                pending_marker = None
+                continue
+
+            # 2) Standalone marker line like: '# accent:primary'
+            m = re.search(r"(^|\s)#\s*accent:([a-z0-9_-]+)", line, re.IGNORECASE)
+            if (
+                m
+                and HEX_PATTERN.search(line) is None
+                and RGBA_PATTERN.search(line) is None
+            ):
+                token = m.group(2).lower()
+                if token in ACCENT_MAP:
+                    pending_marker = token
+                continue
+
+            # 3) Apply pending marker to next line that contains a color token
+            if pending_marker:
+                # Only consume the marker when we hit a line that contains a color token
+                has_hex = HEX_PATTERN.search(line) is not None
+                has_rgba = RGBA_PATTERN.search(line) is not None
+                if has_hex or has_rgba:
+                    key = ACCENT_MAP[pending_marker]
+                    repl = getattr(theme, key)
+                    if key.endswith("_rgba"):
+                        new_line2, altered2 = replace_first(RGBA_PATTERN, line, repl)
+                    else:
+                        new_line2, altered2 = replace_first(HEX_PATTERN, line, repl)
+                    if altered2:
+                        lines[i] = new_line2
+                        changed = True
+                    # Consume the marker regardless of whether a change was needed
+                    pending_marker = None
         if changed:
             path.write_text(
                 "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
@@ -265,64 +306,73 @@ def update_waybar_floating(theme: Theme) -> list[Path]:
     text = css.read_text(encoding="utf-8")
     original_text = text
 
-    def ensure_line(
-        pattern: str, default_line: str, block_hint: str | None = None
-    ) -> str:
+    def edit_waybar_block(edit_fn) -> None:
         nonlocal text
-        if pattern in text:
-            return text
-        # Insert into window#waybar > box block if present
         m = re.search(r"(window#waybar\s*>\s*box\s*\{)([^}]*)\}", text, re.DOTALL)
-        if m:
-            start, end = m.span(2)
-            inner = text[start:end]
-            # Put the default line after background-color if present, else append
-            bc = re.search(r"background-color:\s*[^;]+;\s*\n", inner)
-            insert_at = end
-            if bc:
-                insert_at = start + bc.end()
-            insertion = f"    {default_line}\n"
-            text = text[:insert_at] + insertion + text[insert_at:]
-        else:
-            # Fallback: append at end
-            text += ("\n" if not text.endswith("\n") else "") + default_line + "\n"
-        return text
+        if not m:
+            return
+        head_start, head_end = m.span(1)
+        body_start, body_end = m.span(2)
+        body = text[body_start:body_end]
+        body_lines = body.splitlines(True)
 
-    def update_line(pattern: str, value: str) -> None:
-        nonlocal text
-        # Match lines with the config marker and update the value
-        regex = re.compile(
-            rf"(\s*)([a-z-]+):\s*[^;]+;\s*(/\*\s*{re.escape(pattern)}\s*\*/)"
-        )
-        text = regex.sub(rf"\1\2: {value}; \3", text)
+        def find_line_with_marker(marker: str) -> int:
+            for idx, ln in enumerate(body_lines):
+                if marker in ln:
+                    return idx
+            return -1
+
+        def insert_after_background(new_line: str) -> None:
+            for idx, ln in enumerate(body_lines):
+                if re.search(r"background-color:\s*[^;]+;", ln):
+                    body_lines.insert(idx + 1, new_line)
+                    return
+            body_lines.append(new_line)
+
+        def set_prop(prop: str, value: str, marker: str) -> None:
+            target = f" /* {marker} */\n"
+            i = find_line_with_marker(marker)
+            if i >= 0:
+                indent = re.match(r"\s*", body_lines[i]).group(0)
+                body_lines[i] = f"{indent}{prop}: {value};{target}"
+            else:
+                insert_after_background(f"    {prop}: {value};{target}")
+
+        def remove_marker_lines(markers: list[str]) -> None:
+            nonlocal body_lines
+            body_lines = [
+                ln for ln in body_lines if not any(mk in ln for mk in markers)
+            ]
+
+        edit_fn(set_prop, remove_marker_lines)
+
+        new_body = "".join(body_lines)
+        text = text[:body_start] + new_body + text[body_end:]
 
     if theme.waybar_floating:
-        # Ensure all three lines exist with values from theme
-        text = ensure_line(
-            "config:waybar_floating:border-radius",
-            f"border-radius: {theme.waybar_border_radius}px; /* config:waybar_floating:border-radius */",
-        )
-        text = ensure_line(
-            "config:waybar_floating:padding",
-            f"padding: {theme.waybar_padding}; /* config:waybar_floating:padding */",
-        )
-        text = ensure_line(
-            "config:waybar_floating:margin",
-            f"margin: {theme.waybar_margin}; /* config:waybar_floating:margin */",
-        )
-        # Update existing lines with theme values
-        update_line(
-            "config:waybar_floating:border-radius", f"{theme.waybar_border_radius}px"
-        )
-        update_line("config:waybar_floating:padding", theme.waybar_padding)
-        update_line("config:waybar_floating:margin", theme.waybar_margin)
+
+        def editor(set_prop, remove_marker_lines):
+            set_prop(
+                "border-radius",
+                f"{theme.waybar_border_radius}px",
+                "config:waybar_floating:border-radius",
+            )
+            set_prop("padding", theme.waybar_padding, "config:waybar_floating:padding")
+            set_prop("margin", theme.waybar_margin, "config:waybar_floating:margin")
+
+        edit_waybar_block(editor)
     else:
-        # Remove the lines when disabling floating
-        text = re.sub(
-            r"\n?\s*[^\n;]+;\s*/\*\s*config:waybar_floating:(border-radius|padding|margin)\s*\*/",
-            "",
-            text,
-        )
+
+        def editor(set_prop, remove_marker_lines):
+            remove_marker_lines(
+                [
+                    "config:waybar_floating:border-radius",
+                    "config:waybar_floating:padding",
+                    "config:waybar_floating:margin",
+                ]
+            )
+
+        edit_waybar_block(editor)
 
     if text != original_text:
         css.write_text(text, encoding="utf-8")
