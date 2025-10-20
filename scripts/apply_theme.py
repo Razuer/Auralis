@@ -43,6 +43,9 @@ class Theme:
     secondary_bright_rgba: str  # rgba(RRGGBBAA)
     rounding: int
     waybar_floating: bool
+    waybar_border_radius: int
+    waybar_padding: str
+    waybar_margin: str
 
 
 def normalize_hex(value: str) -> str:
@@ -72,6 +75,9 @@ def load_theme(
     secondary_bright_override: str | None = None,
     rounding_override: int | None = None,
     waybar_floating_override: bool | None = None,
+    waybar_border_radius_override: int | None = None,
+    waybar_padding_override: str | None = None,
+    waybar_margin_override: str | None = None,
 ) -> Theme:
     if not PALETTE_FILE.is_file():
         raise FileNotFoundError(
@@ -101,6 +107,21 @@ def load_theme(
         if waybar_floating_override is not None
         else ui.get("waybar_floating", True)
     )
+    waybar_border_radius = int(
+        waybar_border_radius_override
+        if waybar_border_radius_override is not None
+        else ui.get("waybar_border_radius", 12)
+    )
+    waybar_padding = str(
+        waybar_padding_override
+        if waybar_padding_override is not None
+        else ui.get("waybar_padding", "3px 4px")
+    )
+    waybar_margin = str(
+        waybar_margin_override
+        if waybar_margin_override is not None
+        else ui.get("waybar_margin", "4px 6px")
+    )
 
     return Theme(
         primary=primary,
@@ -112,6 +133,9 @@ def load_theme(
         secondary_bright_rgba=hex_to_rgba(secondary_bright),
         rounding=rounding,
         waybar_floating=waybar_floating,
+        waybar_border_radius=waybar_border_radius,
+        waybar_padding=waybar_padding,
+        waybar_margin=waybar_margin,
     )
 
 
@@ -226,7 +250,7 @@ def ensure_hypr_waybar_layerrules() -> list[Path]:
     return updated
 
 
-def update_waybar_floating(enabled: bool) -> list[Path]:
+def update_waybar_floating(theme: Theme) -> list[Path]:
     """Toggle floating CSS lines that are marked with config comments.
 
     We operate only on lines containing these markers inside waybar.css:
@@ -264,20 +288,34 @@ def update_waybar_floating(enabled: bool) -> list[Path]:
             text += ("\n" if not text.endswith("\n") else "") + default_line + "\n"
         return text
 
-    if enabled:
-        # Ensure all three lines exist with some sane defaults if missing
+    def update_line(pattern: str, value: str) -> None:
+        nonlocal text
+        # Match lines with the config marker and update the value
+        regex = re.compile(
+            rf"(\s*)([a-z-]+):\s*[^;]+;\s*(/\*\s*{re.escape(pattern)}\s*\*/)"
+        )
+        text = regex.sub(rf"\1\2: {value}; \3", text)
+
+    if theme.waybar_floating:
+        # Ensure all three lines exist with values from theme
         text = ensure_line(
             "config:waybar_floating:border-radius",
-            "border-radius: 10px; /* config:waybar_floating:border-radius */",
+            f"border-radius: {theme.waybar_border_radius}px; /* config:waybar_floating:border-radius */",
         )
         text = ensure_line(
             "config:waybar_floating:padding",
-            "padding: 4px 12px; /* config:waybar_floating:padding */",
+            f"padding: {theme.waybar_padding}; /* config:waybar_floating:padding */",
         )
         text = ensure_line(
             "config:waybar_floating:margin",
-            "margin: 6px 8px 8px 8px; /* config:waybar_floating:margin */",
+            f"margin: {theme.waybar_margin}; /* config:waybar_floating:margin */",
         )
+        # Update existing lines with theme values
+        update_line(
+            "config:waybar_floating:border-radius", f"{theme.waybar_border_radius}px"
+        )
+        update_line("config:waybar_floating:padding", theme.waybar_padding)
+        update_line("config:waybar_floating:margin", theme.waybar_margin)
     else:
         # Remove the lines when disabling floating
         text = re.sub(
@@ -321,6 +359,15 @@ def update_theme_file(theme: Theme) -> None:
         lines.append(
             f"waybar_floating = {str(theme.waybar_floating).lower()}  # config:waybar_floating"
         )
+        lines.append(
+            f"waybar_border_radius = {int(theme.waybar_border_radius)}  # config:waybar_floating:border-radius"
+        )
+        lines.append(
+            f'waybar_padding = "{theme.waybar_padding}"  # config:waybar_floating:padding'
+        )
+        lines.append(
+            f'waybar_margin = "{theme.waybar_margin}"  # config:waybar_floating:margin'
+        )
         lines.append("")
 
     PALETTE_FILE.write_text("\n".join(lines), encoding="utf-8")
@@ -343,6 +390,19 @@ def parse_args() -> argparse.Namespace:
         help="Enable/disable Waybar floating",
     )
     p.add_argument(
+        "--waybar-border-radius",
+        type=int,
+        help="Set Waybar border-radius in pixels (e.g., 12)",
+    )
+    p.add_argument(
+        "--waybar-padding",
+        help="Set Waybar padding (e.g., '3px 4px')",
+    )
+    p.add_argument(
+        "--waybar-margin",
+        help="Set Waybar margin (e.g., '4px 6px')",
+    )
+    p.add_argument(
         "--skip-palette",
         action="store_true",
         help="Do not rewrite theme.toml with computed values",
@@ -359,13 +419,16 @@ def main() -> None:
         args.accent_secondary_bright,
         args.rounding,
         args.waybar_floating,
+        args.waybar_border_radius,
+        args.waybar_padding,
+        args.waybar_margin,
     )
 
     updated: list[Path] = []
     updated += apply_accent(theme)
     updated += ensure_hypr_rounding(theme.rounding)
     updated += ensure_hypr_waybar_layerrules()
-    updated += update_waybar_floating(theme.waybar_floating)
+    updated += update_waybar_floating(theme)
 
     if not args.skip_palette:
         update_theme_file(theme)

@@ -12,3 +12,6 @@ rounding = 10  # config:rounding
 
 # Waybar style
 waybar_floating = true  # config:waybar_floating
+waybar_border_radius = 12  # config:waybar_floating:border-radius
+waybar_padding = "3px 4px"  # config:waybar_floating:padding
+waybar_margin = "4px 6px"  # config:waybar_floating:margin
