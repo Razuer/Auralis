@@ -25,7 +25,7 @@ green   = "#66cc66"
 yellow  = "#ffcc66"  
 blue    = "#6699ff"  
 magenta = "#cc66cc"  
-cyan    = "#66cccc"  
+cyan    = "#7dd6f6"  # accent:primary
 white   = "#f2f2f2"  
 
 [colors.bright]
@@ -44,4 +44,4 @@ background = "#2a2a2a"
 
 [colors.vi_mode_cursor]
 text   = "#0d0d0d"
-cursor = "#66cc66" 
+cursor = "#66cc66" # accent:tertiary

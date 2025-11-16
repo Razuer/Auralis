@@ -10,10 +10,10 @@ theme[selected_fg]="#b3ecff" # accent:primary-bright
 theme[graph_text]="#e6e6e6"
 theme[proc_misc]="#e6e6e6"
 
-theme[cpu_box]="#66cc66"
-theme[mem_box]="#6699ff"
-theme[net_box]="#66cccc"
-theme[proc_box]="#cc66cc"
+theme[cpu_box]="#66cc66"  # accent:primary
+theme[mem_box]="#6699ff"  # accent:secondary
+theme[net_box]="#66cccc"  # accent:tertiary
+theme[proc_box]="#cc66cc" # accent:quaternary
 theme[div_line]="#404040"
 
 theme[temp_start]="#6699ff"

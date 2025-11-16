@@ -6,6 +6,12 @@ primary = "#7dd6f6"
 primary_bright = "#b3ecff"
 secondary = "#957df6"
 secondary_bright = "#c2b6fb"
+tertiary = "#66cc66"
+tertiary_bright = "#80e680"
+quaternary = "#e65c5c"
+quaternary_bright = "#ff6666"
+quinary = "#ffcc66"
+quinary_bright = "#ffdd80"
 
 [ui]
 rounding = 10  # config:rounding

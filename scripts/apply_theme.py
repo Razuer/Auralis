@@ -41,6 +41,18 @@ class Theme:
     secondary_rgba: str  # rgba(RRGGBBAA)
     secondary_bright: str  # #RRGGBB
     secondary_bright_rgba: str  # rgba(RRGGBBAA)
+    tertiary: str
+    tertiary_rgba: str
+    tertiary_bright: str
+    tertiary_bright_rgba: str
+    quaternary: str
+    quaternary_rgba: str
+    quaternary_bright: str
+    quaternary_bright_rgba: str
+    quinary: str
+    quinary_rgba: str
+    quinary_bright: str
+    quinary_bright_rgba: str
     rounding: int
     waybar_floating: bool
     waybar_border_radius: int
@@ -73,6 +85,12 @@ def load_theme(
     bright_override: str | None = None,
     secondary_override: str | None = None,
     secondary_bright_override: str | None = None,
+    tertiary_override: str | None = None,
+    tertiary_bright_override: str | None = None,
+    quaternary_override: str | None = None,
+    quaternary_bright_override: str | None = None,
+    quinary_override: str | None = None,
+    quinary_bright_override: str | None = None,
     rounding_override: int | None = None,
     waybar_floating_override: bool | None = None,
     waybar_border_radius_override: int | None = None,
@@ -97,6 +115,22 @@ def load_theme(
     secondary = normalize_hex(secondary_override or acc.get("secondary") or primary)
     secondary_bright = normalize_hex(
         secondary_bright_override or acc.get("secondary_bright") or lighten(secondary)
+    )
+    tertiary = normalize_hex(tertiary_override or acc.get("tertiary") or "#66cc66")
+    tertiary_bright = normalize_hex(
+        tertiary_bright_override or acc.get("tertiary_bright") or lighten(tertiary)
+    )
+    quaternary = normalize_hex(
+        quaternary_override or acc.get("quaternary") or "#e65c5c"
+    )
+    quaternary_bright = normalize_hex(
+        quaternary_bright_override
+        or acc.get("quaternary_bright")
+        or lighten(quaternary)
+    )
+    quinary = normalize_hex(quinary_override or acc.get("quinary") or "#ffcc66")
+    quinary_bright = normalize_hex(
+        quinary_bright_override or acc.get("quinary_bright") or lighten(quinary)
     )
 
     rounding = int(
@@ -131,6 +165,18 @@ def load_theme(
         secondary_rgba=hex_to_rgba(secondary),
         secondary_bright=secondary_bright,
         secondary_bright_rgba=hex_to_rgba(secondary_bright),
+        tertiary=tertiary,
+        tertiary_rgba=hex_to_rgba(tertiary),
+        tertiary_bright=tertiary_bright,
+        tertiary_bright_rgba=hex_to_rgba(tertiary_bright),
+        quaternary=quaternary,
+        quaternary_rgba=hex_to_rgba(quaternary),
+        quaternary_bright=quaternary_bright,
+        quaternary_bright_rgba=hex_to_rgba(quaternary_bright),
+        quinary=quinary,
+        quinary_rgba=hex_to_rgba(quinary),
+        quinary_bright=quinary_bright,
+        quinary_bright_rgba=hex_to_rgba(quinary_bright),
         rounding=rounding,
         waybar_floating=waybar_floating,
         waybar_border_radius=waybar_border_radius,
@@ -151,6 +197,21 @@ ACCENT_MARKERS: tuple[tuple[str, str], ...] = (
     ("accent:secondary-bright", "secondary_bright"),
     ("accent:secondary-rgba", "secondary_rgba"),
     ("accent:secondary", "secondary"),
+    # Tertiary
+    ("accent:tertiary-bright-rgba", "tertiary_bright_rgba"),
+    ("accent:tertiary-bright", "tertiary_bright"),
+    ("accent:tertiary-rgba", "tertiary_rgba"),
+    ("accent:tertiary", "tertiary"),
+    # Quaternary
+    ("accent:quaternary-bright-rgba", "quaternary_bright_rgba"),
+    ("accent:quaternary-bright", "quaternary_bright"),
+    ("accent:quaternary-rgba", "quaternary_rgba"),
+    ("accent:quaternary", "quaternary"),
+    # Quinary
+    ("accent:quinary-bright-rgba", "quinary_bright_rgba"),
+    ("accent:quinary-bright", "quinary_bright"),
+    ("accent:quinary-rgba", "quinary_rgba"),
+    ("accent:quinary", "quinary"),
 )
 
 # Mapping for quick marker/token -> Theme attribute lookup
@@ -400,6 +461,12 @@ def update_theme_file(theme: Theme) -> None:
         f'primary_bright = "{theme.primary_bright}"',
         f'secondary = "{theme.secondary}"',
         f'secondary_bright = "{theme.secondary_bright}"',
+        f'tertiary = "{theme.tertiary}"',
+        f'tertiary_bright = "{theme.tertiary_bright}"',
+        f'quaternary = "{theme.quaternary}"',
+        f'quaternary_bright = "{theme.quaternary_bright}"',
+        f'quinary = "{theme.quinary}"',
+        f'quinary_bright = "{theme.quinary_bright}"',
         "",
     ]
     if isinstance(existing_ui, dict):
@@ -432,6 +499,19 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--accent-secondary", help="Override accent.secondary (#RRGGBB)")
     p.add_argument(
         "--accent-secondary-bright", help="Override accent.secondary_bright (#RRGGBB)"
+    )
+    p.add_argument("--accent-tertiary", help="Override accent.tertiary (#RRGGBB)")
+    p.add_argument(
+        "--accent-tertiary-bright", help="Override accent.tertiary_bright (#RRGGBB)"
+    )
+    p.add_argument("--accent-quaternary", help="Override accent.quaternary (#RRGGBB)")
+    p.add_argument(
+        "--accent-quaternary-bright",
+        help="Override accent.quaternary_bright (#RRGGBB)",
+    )
+    p.add_argument("--accent-quinary", help="Override accent.quinary (#RRGGBB)")
+    p.add_argument(
+        "--accent-quinary-bright", help="Override accent.quinary_bright (#RRGGBB)"
     )
     p.add_argument("--rounding", type=int, help="Set window rounding (0..30)")
     p.add_argument(
@@ -467,6 +547,12 @@ def main() -> None:
         args.accent_bright,
         args.accent_secondary,
         args.accent_secondary_bright,
+        args.accent_tertiary,
+        args.accent_tertiary_bright,
+        args.accent_quaternary,
+        args.accent_quaternary_bright,
+        args.accent_quinary,
+        args.accent_quinary_bright,
         args.rounding,
         args.waybar_floating,
         args.waybar_border_radius,
