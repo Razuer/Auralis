@@ -1,0 +1,28 @@
+/* Auralis GTK-4.0 Theme - Custom CSS for dialogs with blur */
+
+/* Main windows and dialogs */
+window,
+dialog {
+    background-color: alpha(@window_bg_color, 0.75);
+    border-radius: 10px;
+}
+
+/* Message dialogs */
+.message-dialog {
+    background-color: alpha(@window_bg_color, 0.75);
+    border-radius: 10px;
+}
+
+/* Popovers */
+popover {
+    background-color: alpha(@popover_bg_color, 0.75);
+}
+
+/* Accent color */
+@define-color accent_color #7dd6f6;
+@define-color accent_bg_color #7dd6f6;
+
+/* Suggested action buttons */
+.suggested-action {
+    background-color: @accent_color;
+}

@@ -1,0 +1,58 @@
+/* Auralis GTK-3.0 Theme - Custom CSS for dialogs with blur */
+/* This file adds transparency to GTK dialogs for blur effect in Hyprland */
+
+/* Main dialog windows */
+.dialog,
+dialog {
+    background-color: alpha(@theme_bg_color, 0.85);
+    border-radius: 10px;
+}
+
+/* Dialog content area */
+.dialog-content,
+dialog box {
+    background-color: alpha(@theme_bg_color, 0.85);
+    border-radius: 10px;
+}
+
+/* Message dialogs (like Save/Don't Save) */
+.message-dialog,
+.messagedialog {
+    background-color: alpha(@theme_bg_color, 0.85);
+    border-radius: 10px;
+}
+
+/* Dialog buttons area */
+.dialog-action-area,
+dialog buttonbox {
+    background-color: alpha(@theme_bg_color, 0.9);
+}
+
+/* File chooser dialogs */
+.filechooser {
+    background-color: alpha(@theme_bg_color, 0.85);
+}
+
+/* Popovers and context menus */
+.popover,
+popover {
+    background-color: alpha(@theme_bg_color, 0.85);
+}
+
+/* Tooltips */
+.tooltip,
+tooltip {
+    background-color: alpha(@theme_bg_color, 0.9);
+}
+
+/* Accent color from Auralis theme */
+@define-color accent_color #7dd6f6;
+@define-color accent_bg_color #7dd6f6;
+@define-color accent_fg_color #0d0d0d;
+
+/* Apply accent to focused buttons */
+button:focus,
+button.suggested-action {
+    background-color: @accent_color;
+    color: @accent_fg_color;
+}
